@@ -1,9 +1,8 @@
 import "./App.css";
 import { createContext, useState } from "react";
-import Login from "./Components/login";
-import allProducts from "./Components/allProducts";
-import NavBar from "./Components/Navbar";
-import AllProducts from "./Components/allProducts";
+import Login from "./authentication/Login";
+import NavBar from "./navigation/Navbar";
+import AllProducts from "./products/retrieveProducts/AllProducts";
 
 export const AppContext = createContext();
 
@@ -17,10 +16,10 @@ function App() {
 
   return (
     <AppContext.Provider value={{ setLoggedIn, openModal, setOpenModal }}>
-      {!loggedIn && <Login />}
+      {!loggedIn && <Login setLoggedIn={setLoggedIn} />}
       {loggedIn && (
         <>
-          <NavBar />
+          <NavBar setLoggedIn={setLoggedIn} />
           <AllProducts />
         </>
       )}
