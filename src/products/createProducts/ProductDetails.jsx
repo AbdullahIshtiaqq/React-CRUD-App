@@ -15,6 +15,7 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 import { getCategories, addProduct, updateProduct } from "../../axios/ApiCalls";
 import WaitingLoader from "../../utils/WaitingLoader";
 import UploadFile from "./UploadFile";
+import { KEYS } from "../../constants/Constants";
 
 export default function ProductDetails({
   toAdd,
@@ -32,18 +33,18 @@ export default function ProductDetails({
   const myClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: "categories",
+    queryKey: KEYS.GET_CATEGORIES,
     queryFn: async () => await getCategories(10),
   });
 
   const productMutation = useMutation({
     mutationFn: addProduct,
-    onSuccess: () => myClient.invalidateQueries("getProducts"),
+    onSuccess: () => myClient.invalidateQueries(KEYS.GET_PRODUCTS),
   });
 
   const updateMutation = useMutation({
     mutationFn: updateProduct,
-    onSuccess: () => myClient.invalidateQueries("getProducts"),
+    onSuccess: () => myClient.invalidateQueries(KEYS.GET_PRODUCTS),
   });
 
   const handleSubmit = async (event) => {

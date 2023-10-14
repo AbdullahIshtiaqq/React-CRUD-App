@@ -6,6 +6,14 @@ export default function AddProduct({ openModal, setOpenModal }) {
     setOpenModal(true);
   };
 
+  const product = {
+    title: "",
+    description: "",
+    price: "",
+    category: { id: "" },
+    image: "",
+  };
+
   return (
     <>
       <Button variant="outlined" color="inherit" onClick={handleAddProduct}>
@@ -16,13 +24,7 @@ export default function AddProduct({ openModal, setOpenModal }) {
           openModal={openModal}
           toAdd={true}
           setOpenModal={setOpenModal}
-          product={{
-            title: "",
-            description: "",
-            price: "",
-            category: { id: "" },
-            image: "",
-          }}
+          product={product}
         />
       )}
     </>

@@ -11,20 +11,21 @@ import { useState } from "react";
 import { useQuery } from "react-query";
 import { getUserProfile } from "../axios/ApiCalls";
 import AddProduct from "../products/createProducts/AddProduct";
+import { ACCESS_TOKEN, KEYS, REFRESH_TOKEN } from "../constants/Constants";
 
 export default function Navbar({ setLoggedIn }) {
   const [anchorEl, setAnchorEl] = useState(null);
   const [openModal, setOpenModal] = useState(false);
 
   const query = useQuery({
-    queryKey: "getProfile",
-    queryFn: () => getUserProfile(localStorage.getItem("accessToken")),
+    queryKey: KEYS.GET_PROFILE,
+    queryFn: () => getUserProfile(localStorage.getItem(ACCESS_TOKEN)),
   });
 
   const handleLogout = () => {
     handleClose();
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    localStorage.removeItem(ACCESS_TOKEN);
+    localStorage.removeItem(REFRESH_TOKEN);
     setLoggedIn(false);
   };
 

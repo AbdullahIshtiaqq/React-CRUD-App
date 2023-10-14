@@ -9,4 +9,10 @@ const ENDPOINTS = {
   UPLOAD_FILE: "/files/upload",
 };
 
-export { ACCESS_TOKEN, REFRESH_TOKEN, ENDPOINTS };
+const KEYS = {
+  GET_PRODUCTS: "getProducts",
+  GET_PROFILE: "getProfile",
+  GET_CATEGORIES: "getCategories",
+};
+
+export { ACCESS_TOKEN, REFRESH_TOKEN, ENDPOINTS, KEYS };

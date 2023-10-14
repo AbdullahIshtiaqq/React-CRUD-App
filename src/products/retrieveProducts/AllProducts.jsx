@@ -1,28 +1,19 @@
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Unstable_Grid2";
-import CircularProgress from "@mui/material/CircularProgress";
-import Stack from "@mui/material/Stack";
 import { getProducts } from "../../axios/ApiCalls";
 import Product from "./Product";
 import { useQuery } from "react-query";
+import { KEYS } from "../../constants/Constants";
+import WaitingLoader from "../../utils/WaitingLoader";
 
 export default function AllProducts() {
   const query = useQuery({
-    queryKey: "getProducts",
+    queryKey: KEYS.GET_PRODUCTS,
     queryFn: getProducts,
   });
 
   if (query.isLoading) {
-    return (
-      <Stack
-        direction="row"
-        justifyContent="center"
-        alignItems="center"
-        sx={{ width: 1, height: "100vh" }}
-      >
-        <CircularProgress />
-      </Stack>
-    );
+    return <WaitingLoader text="" />;
   }
 
   return (
@@ -34,19 +25,7 @@ export default function AllProducts() {
       >
         {query.data.data.map((product) => (
           <Grid xs={6} sm={3} md={2} lg={2} key={product.id}>
-            <Product
-              product={{
-                id: product.id,
-                title: product.title,
-                price: product.price,
-                description: product.description,
-                images: product.images,
-                category: {
-                  id: product.category.id,
-                  name: product.category.name,
-                },
-              }}
-            />
+            <Product product={product} />
           </Grid>
         ))}
       </Grid>
