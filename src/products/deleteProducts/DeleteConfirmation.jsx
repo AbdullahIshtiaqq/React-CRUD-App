@@ -1,56 +1,45 @@
-import Button from "@mui/material/Button";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import DialogContent from "@mui/material/DialogContent";
-import DialogContentText from "@mui/material/DialogContentText";
-import DialogTitle from "@mui/material/DialogTitle";
 import WaitingLoader from "../../utils/WaitingLoader";
 import { useMutation, useQueryClient } from "react-query";
 import { deleteProduct } from "../../axios/ApiCalls";
+import { KEYS } from "../../constants/Constants";
+import ConfirmationModal from "../../utils/confirmationModal";
+import { Dialog, DialogContent } from "@mui/material";
 
 export default function ConfirmDeletion({ open, setOpen, id }) {
   const myClient = useQueryClient();
   const mutation = useMutation({
     mutationFn: () => deleteProduct(id),
-    onSuccess: () => myClient.invalidateQueries("getProducts"),
+    onSuccess: () => myClient.invalidateQueries(KEYS.GET_PRODUCTS),
   });
 
-  const handleDelete = () => {
-    mutation.mutateAsync().then(() => handleClose());
+  const handleDelete = async () => {
+    await mutation.mutateAsync();
   };
   const handleClose = () => {
     setOpen(false);
   };
 
   return (
-    <div>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-      >
-        {mutation.isLoading && <WaitingLoader text="Deleting... " />}
-        {!mutation.isLoading && (
-          <>
-            <DialogTitle id="alert-dialog-title">
-              {"Are you sure you want to delete?"}
-            </DialogTitle>
-            <DialogContent>
-              <DialogContentText id="alert-dialog-description">
-                Deleting this product will delete all records related to it. You
-                won't be able to undo the action.
-              </DialogContentText>
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose}>Cacnel</Button>
-              <Button onClick={handleDelete} autoFocus>
-                Delete
-              </Button>
-            </DialogActions>
-          </>
-        )}
-      </Dialog>
-    </div>
+    <>
+      {mutation.isLoading && (
+        <Dialog open={true}>
+          <DialogContent>
+            <WaitingLoader text="Deleting..." />
+          </DialogContent>
+        </Dialog>
+      )}
+      {!mutation.isLoading && (
+        <ConfirmationModal
+          open={open}
+          title="Are you sure you want to delete?"
+          text="Deleting this product will delete all records related to it. You
+    //             won't be able to undo the action."
+          okButtonText="Delete"
+          cancelButtonText="Cancel"
+          handleOkClick={handleDelete}
+          handleCancelClick={handleClose}
+        />
+      )}
+    </>
   );
 }
