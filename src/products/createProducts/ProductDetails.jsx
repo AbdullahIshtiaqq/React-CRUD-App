@@ -9,32 +9,13 @@ import MenuItem from "@mui/material/MenuItem";
 import Select from "@mui/material/Select";
 import TextField from "@mui/material/TextField";
 import Grid from "@mui/material/Grid";
-import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import InputLabel from "@mui/material/InputLabel";
-import { styled } from "@mui/material/styles";
-import { Typography } from "@mui/material";
-import { useMutation, useQuery, useQueryClient } from "react-query";
 import { useState } from "react";
-import {
-  getCategories,
-  uploadFile,
-  addProduct,
-  updateProduct,
-} from "../apiCalls";
-import ProgressChecker from "./porgressChecker";
-import WaitingLoader from "./waitingLoader";
-
-const VisuallyHiddenInput = styled("input")({
-  clip: "rect(0 0 0 0)",
-  clipPath: "inset(50%)",
-  height: 1,
-  overflow: "hidden",
-  position: "absolute",
-  bottom: 0,
-  left: 0,
-  whiteSpace: "nowrap",
-  width: 1,
-});
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { getCategories, addProduct, updateProduct } from "../../axios/ApiCalls";
+import WaitingLoader from "../../utils/WaitingLoader";
+import UploadFile from "./UploadFile";
+import { KEYS } from "../../constants/Constants";
 
 export default function ProductDetails({
   toAdd,
@@ -42,45 +23,29 @@ export default function ProductDetails({
   setOpenModal,
   product,
 }) {
-  const [file, setFile] = useState();
-  const [filename, setFilename] = useState(() =>
-    toAdd ? "" : product.images[0].split("/").slice(-1)
-  );
-  const [progress, setProgress] = useState(() => (toAdd ? 0 : 100));
   const [fileUrl, setFileUrl] = useState(() =>
     toAdd ? "" : product.images[0]
   );
+  const [filename, setFilename] = useState(() =>
+    toAdd ? "" : product.images[0].split("/").slice(-1)
+  );
+
   const myClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: "categories",
-    queryFn: async () => await getCategories(100),
-  });
-
-  const mutation = useMutation({
-    mutationFn: uploadFile,
+    queryKey: KEYS.GET_CATEGORIES,
+    queryFn: async () => await getCategories(10),
   });
 
   const productMutation = useMutation({
     mutationFn: addProduct,
-    onSuccess: () => myClient.invalidateQueries("getProducts"),
+    onSuccess: () => myClient.invalidateQueries(KEYS.GET_PRODUCTS),
   });
 
   const updateMutation = useMutation({
     mutationFn: updateProduct,
-    onSuccess: () => myClient.invalidateQueries("getProducts"),
+    onSuccess: () => myClient.invalidateQueries(KEYS.GET_PRODUCTS),
   });
-
-  const handleFileUpload = async (e) => {
-    setProgress(0);
-    setFile(e.target.files[0]);
-    setFilename(e.target.files[0].name);
-    const res = await mutation.mutateAsync({
-      file: e.target.files[0],
-      setProgress: setProgress,
-    });
-    setFileUrl(res.data.location);
-  };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -94,11 +59,10 @@ export default function ProductDetails({
     };
     if (toAdd) {
       await productMutation.mutateAsync(productData);
-      handleClose();
     } else {
       await updateMutation.mutateAsync({ id: product.id, data: productData });
-      handleClose();
     }
+    handleClose();
   };
 
   const handleClose = () => {
@@ -114,10 +78,14 @@ export default function ProductDetails({
         !updateMutation.isLoading &&
         !query.isLoading && (
           <>
-            <DialogTitle>Add Product</DialogTitle>
+            <DialogTitle>
+              {toAdd && <>Add Product</>}
+              {!toAdd && <>Update Product</>}
+            </DialogTitle>
             <DialogContent>
               <DialogContentText>
-                Provide product details to add!
+                {toAdd && <>Provide Product Details to Add!</>}
+                {!toAdd && <>Update Product Details!</>}
               </DialogContentText>
 
               <Box
@@ -182,26 +150,12 @@ export default function ProductDetails({
                   })}
                 </Select>
 
-                <Button
-                  component="label"
-                  variant="contained"
-                  sx={{ mt: 3, maxWidth: 200 }}
-                  startIcon={<CloudUploadIcon />}
-                >
-                  Upload Image
-                  <VisuallyHiddenInput
-                    type="file"
-                    onChange={handleFileUpload}
-                  />
-                </Button>
-
-                {progress == 100 && (
-                  <Typography color="blue">{filename}</Typography>
-                )}
-
-                {progress < 100 && progress > 0 && (
-                  <ProgressChecker progress={progress} />
-                )}
+                <UploadFile
+                  disabled={!toAdd}
+                  setFileUrl={setFileUrl}
+                  filename={filename}
+                  setFilename={setFilename}
+                />
 
                 <Button
                   type="submit"

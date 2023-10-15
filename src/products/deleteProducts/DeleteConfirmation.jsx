@@ -4,9 +4,9 @@ import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
-import WaitingLoader from "./waitingLoader";
+import WaitingLoader from "../../utils/WaitingLoader";
 import { useMutation, useQueryClient } from "react-query";
-import { deleteProduct } from "../apiCalls";
+import { deleteProduct } from "../../axios/ApiCalls";
 
 export default function ConfirmDeletion({ open, setOpen, id }) {
   const myClient = useQueryClient();

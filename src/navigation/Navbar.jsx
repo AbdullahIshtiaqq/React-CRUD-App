@@ -7,26 +7,25 @@ import Avatar from "@mui/material/Avatar";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
 import CircularProgress from "@mui/material/CircularProgress";
-import Button from "@mui/material/Button";
-import ProductDetails from "./productDetails";
-import { useState, useContext } from "react";
-import { AppContext } from "../App";
+import { useState } from "react";
 import { useQuery } from "react-query";
-import { getUserProfile } from "../apiCalls";
+import { getUserProfile } from "../axios/ApiCalls";
+import AddProduct from "../products/createProducts/AddProduct";
+import { ACCESS_TOKEN, KEYS, REFRESH_TOKEN } from "../constants/Constants";
 
-export default function Navbar() {
+export default function Navbar({ setLoggedIn }) {
   const [anchorEl, setAnchorEl] = useState(null);
-  const { setLoggedIn, openModal, setOpenModal } = useContext(AppContext);
+  const [openModal, setOpenModal] = useState(false);
 
   const query = useQuery({
-    queryKey: "getProfile",
-    queryFn: () => getUserProfile(localStorage.getItem("accessToken")),
+    queryKey: KEYS.GET_PROFILE,
+    queryFn: () => getUserProfile(localStorage.getItem(ACCESS_TOKEN)),
   });
 
   const handleLogout = () => {
     handleClose();
-    localStorage.removeItem("accessToken");
-    localStorage.removeItem("refreshToken");
+    localStorage.removeItem(ACCESS_TOKEN);
+    localStorage.removeItem(REFRESH_TOKEN);
     setLoggedIn(false);
   };
 
@@ -36,10 +35,6 @@ export default function Navbar() {
 
   const handleClose = () => {
     setAnchorEl(null);
-  };
-
-  const handleAddProduct = () => {
-    setOpenModal(true);
   };
 
   return (
@@ -54,13 +49,7 @@ export default function Navbar() {
             {query.isLoading && <CircularProgress color="secondary" />}
             {!query.isLoading && (
               <div>
-                <Button
-                  variant="outlined"
-                  color="inherit"
-                  onClick={handleAddProduct}
-                >
-                  Add Product
-                </Button>
+                <AddProduct openModal={openModal} setOpenModal={setOpenModal} />
                 <IconButton
                   size="large"
                   aria-label="account of current user"
@@ -93,20 +82,6 @@ export default function Navbar() {
           </Toolbar>
         </AppBar>
       </Box>
-      {openModal && (
-        <ProductDetails
-          openModal={openModal}
-          toAdd={true}
-          setOpenModal={setOpenModal}
-          product={{
-            title: "",
-            description: "",
-            price: "",
-            category: { id: "" },
-            image: "",
-          }}
-        />
-      )}
     </>
   );
 }
